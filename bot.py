@@ -14,9 +14,8 @@ async def send_message(message, user_message, is_private):
 
 
 def run_discord_bot():
-    TOKEN = "Your Token"
+    TOKEN = "MTA5OTY4MTMzMDI0NzIzNzY2Mg.GKKNWS.bhiwNixc7TgLfmLLvCdSMazyXSggR80AjXSxtk"
     client = discord.Client(intents=intents)
-
 
     @client.event
     async def on_ready():
@@ -24,6 +23,7 @@ def run_discord_bot():
 
     @client.event
     async def on_message(message):
+
         if message.author == client.user:
             return
 

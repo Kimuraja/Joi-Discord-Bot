@@ -1,5 +1,6 @@
 from random import randint
 
+
 def handle_response(message) -> str:
     p_msg = message.lower()
 
@@ -11,4 +12,4 @@ def handle_response(message) -> str:
 
     if p_msg == '!help':
         return "`This is a help message that you can modify.`"
-
+    
