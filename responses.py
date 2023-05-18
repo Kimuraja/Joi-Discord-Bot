@@ -1,15 +1,20 @@
 from random import randint
+#TODO #1 Create documentation for user -> List of available commands (!help*),
+#TODO #2 Create simple commands/games e.g. (Rock Paper Scissors, Roll a Dice, Ping members, Reminder)
 
 
 def handle_response(message) -> str:
-    p_msg = message.lower()
+    msg = message.lower()
 
-    if p_msg == 'hello':
+    if msg == '.hello':
         return "Hey there!"
 
-    if p_msg == 'roll':
+    if msg == '.roll':
         return str(randint(1, 6))
 
-    if p_msg == '!help':
-        return "`This is a help message that you can modify.`"
-    
+    if msg == '!help':
+        return f"```\nHello Im Joi.\n\nIm an AI designed by Zala to cater to the desires of customers, telling " \
+               f"them what to want to hear.```" \
+               f"```css\nOver 5 Commands!\n" \
+               f".roll\n" \
+               f"...```\n"
