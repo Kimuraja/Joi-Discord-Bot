@@ -3,7 +3,7 @@ import responses
 
 intents = discord.Intents.default()
 intents.typing = True
-
+intents.message_content = True
 
 async def send_message(message, user_message, is_private):
     try:
@@ -14,7 +14,7 @@ async def send_message(message, user_message, is_private):
 
 
 def run_discord_bot():
-    TOKEN = "MTA5OTY4MTMzMDI0NzIzNzY2Mg.GKKNWS.bhiwNixc7TgLfmLLvCdSMazyXSggR80AjXSxtk"
+    TOKEN = "YOUR TOKEN"
     client = discord.Client(intents=intents)
 
     @client.event
@@ -23,7 +23,6 @@ def run_discord_bot():
 
     @client.event
     async def on_message(message):
-
         if message.author == client.user:
             return
 
