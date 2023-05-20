@@ -1,20 +1,33 @@
-from random import randint
-#TODO #1 Create documentation for user -> List of available commands (!help*),
-#TODO #2 Create simple commands/games e.g. (Rock Paper Scissors, Roll a Dice, Ping members, Reminder)
-
-
-def handle_response(message) -> str:
-    msg = message.lower()
-
-    if msg == '.hello':
-        return "Hey there!"
-
-    if msg == '.roll':
-        return str(randint(1, 6))
-
-    if msg == '!help':
-        return f"```\nHello Im Joi.\n\nIm an AI designed by Zala to cater to the desires of customers, telling " \
-               f"them what to want to hear.```" \
-               f"```css\nOver 5 Commands!\n" \
-               f".roll\n" \
-               f"...```\n"
+# from random import randint
+# import discord
+# from discord.ext import commands
+#
+# intents = discord.Intents.default()
+# intents.typing = True
+# intents.message_content = True
+#
+#
+# def message():
+#     client = commands.Bot(command_prefix=">", intents=intents)
+#     client.remove_command("help")
+#
+#     @client.group(invoke_without_command=True)
+#     async def help(ctx):
+#         em = discord.Embed(title="Help", description="Use >help <command>", color=ctx.author.color)
+#         em.add_field(name="Moderation", value="kick,ban,warn")
+#         em.add_field(name="Fun", value="8ball,reverse")
+#         await ctx.send(embed=em)
+#
+#     @help.command()
+#     async def kick(ctx):
+#         em = discord.Embed(title="Ping", description="Kick a member", color=ctx.author.color)
+#         em.add_field(name="**SYNTAX**", value=">kick <member> [reason]")
+#         await ctx.send(embed=em)
+#
+#     @help.command()
+#     async def ban(ctx):
+#         em = discord.Embed(title="Ban", description="Ban a member", color=ctx.author.color)
+#         em.add_field(name="**SYNTAX**", value=">ban <member> [reason]")
+#         await ctx.send(embed=em)
+#
+#     client.run(TOKEN)
