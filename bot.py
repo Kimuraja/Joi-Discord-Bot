@@ -7,7 +7,7 @@ intents.message_content = True
 
 
 def run_discord_bot():
-    TOKEN = "Your token"
+    TOKEN = "Your Token"
 
     client = commands.Bot(command_prefix=">", intents=intents)
     client.remove_command("help")
@@ -39,6 +39,27 @@ def run_discord_bot():
         em = discord.Embed(title="**Ban**", description="Make sure the replicant doesn't come back using this command."
                            , color=ctx.author.color)
         em.add_field(name="**SYNTAX**", value="`>help ban <member> [reason]`")
+        await ctx.send(embed=em)
+
+    @help.command()
+    async def warn(ctx):
+        em = discord.Embed(title="**Warn**", description="SOON"
+                           , color=ctx.author.color)
+        em.add_field(name="**SYNTAX**", value="`>help warn <member> [reason]`")
+        await ctx.send(embed=em)
+
+    @help.command()
+    async def remind(ctx):
+        em = discord.Embed(title="**Reminder**", description="SOON"
+                           , color=ctx.author.color)
+        em.add_field(name="**SYNTAX**", value="`>help remind <member> [What did you want to be reminded of]`")
+        await ctx.send(embed=em)
+
+    @help.command()
+    async def play(ctx):
+        em = discord.Embed(title="**Reminder**", description="SOON"
+                           , color=ctx.author.color)
+        em.add_field(name="**SYNTAX**", value="`>help play <song>`")
         await ctx.send(embed=em)
 
     client.run(TOKEN)
