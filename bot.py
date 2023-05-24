@@ -1,14 +1,13 @@
 import discord
 from discord.ext import commands
+import os
+import youtube_dl
 
-intents = discord.Intents.default()
-intents.typing = True
-intents.message_content = True
+TOKEN = "Your token"
+intents = discord.Intents().all()
 
 
 def run_discord_bot():
-    TOKEN = "Your Token"
-
     client = commands.Bot(command_prefix=">", intents=intents)
     client.remove_command("help")
 
@@ -29,14 +28,16 @@ def run_discord_bot():
 
     @help.command()
     async def kick(ctx):
-        em = discord.Embed(title="**Kick**", description="Get rid of the replicant from this server using this command."
+        em = discord.Embed(title="**Kick**",
+                           description="Get rid of the replicant from this server using this command."
                            , color=ctx.author.color)
         em.add_field(name="**SYNTAX**", value="`>help kick <member> [reason]`")
         await ctx.send(embed=em)
 
     @help.command()
     async def ban(ctx):
-        em = discord.Embed(title="**Ban**", description="Make sure the replicant doesn't come back using this command."
+        em = discord.Embed(title="**Ban**",
+                           description="Make sure the replicant doesn't come back using this command."
                            , color=ctx.author.color)
         em.add_field(name="**SYNTAX**", value="`>help ban <member> [reason]`")
         await ctx.send(embed=em)
@@ -55,11 +56,20 @@ def run_discord_bot():
         em.add_field(name="**SYNTAX**", value="`>help remind <member> [What did you want to be reminded of]`")
         await ctx.send(embed=em)
 
-    @help.command()
+    @help.command(pass_context=True)
     async def play(ctx):
-        em = discord.Embed(title="**Reminder**", description="SOON"
-                           , color=ctx.author.color)
-        em.add_field(name="**SYNTAX**", value="`>help play <song>`")
-        await ctx.send(embed=em)
+        if ctx.author.voice:
+            channel = ctx.message.author.voice.channel
+            await channel.connect()
+        else:
+            await ctx.send("You're not in a voice channel, you must be in a vc to run this command")
+
+    @help.command(pass_context=True)
+    async def leave(ctx):
+        if ctx.voice_client:
+            await ctx.guild.voice_client.disconnect()
+            await ctx.send("Goodbye")
+        else:
+            await ctx.send("I am not in a vc")
 
     client.run(TOKEN)
