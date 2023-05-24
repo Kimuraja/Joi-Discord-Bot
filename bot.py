@@ -1,42 +1,65 @@
 import discord
-import responses
+from discord.ext import commands
 
 intents = discord.Intents.default()
 intents.typing = True
-
-
-async def send_message(message, user_message, is_private):
-    try:
-        response = responses.handle_response(user_message)
-        await message.author.send(response) if is_private else await message.channel.send(response)
-    except Exception as e:
-        print(e)
+intents.message_content = True
 
 
 def run_discord_bot():
-    TOKEN = "MTA5OTY4MTMzMDI0NzIzNzY2Mg.GKKNWS.bhiwNixc7TgLfmLLvCdSMazyXSggR80AjXSxtk"
-    client = discord.Client(intents=intents)
+    TOKEN = "Your Token"
 
-    @client.event
-    async def on_ready():
-        print(f'{client.user} is now running!')
+    client = commands.Bot(command_prefix=">", intents=intents)
+    client.remove_command("help")
 
-    @client.event
-    async def on_message(message):
+    @client.group(invoke_without_command=True)
+    async def help(ctx):
+        em = discord.Embed(title=f"Hey, **{ctx.author}**, I am Joi", description="A Discord Music Bot With Many "
+                                                                                 "Awesome Features, Buttons, Menus, "
+                                                                                 "Context Menu, Support Many Sources, "
+                                                                                 "Customizable Settings\n\nOver **5** "
+                                                                                 "`>help <command>` Commands",
+                           color=ctx.author.color)
+        em.add_field(name="**Moderation**", value="`>help kick` SOON\n"
+                                                  "`>help ban` SOON\n"
+                                                  "`>help warn` SOON\n"
+                                                  "`>help remind` SOON")
+        em.add_field(name="**Fun**", value="`Music YT, Spotify` SOON\n")
+        await ctx.send(embed=em)
 
-        if message.author == client.user:
-            return
+    @help.command()
+    async def kick(ctx):
+        em = discord.Embed(title="**Kick**", description="Get rid of the replicant from this server using this command."
+                           , color=ctx.author.color)
+        em.add_field(name="**SYNTAX**", value="`>help kick <member> [reason]`")
+        await ctx.send(embed=em)
 
-        username = str(message.author)
-        user_message = str(message.content)
-        channel = str(message.channel)
+    @help.command()
+    async def ban(ctx):
+        em = discord.Embed(title="**Ban**", description="Make sure the replicant doesn't come back using this command."
+                           , color=ctx.author.color)
+        em.add_field(name="**SYNTAX**", value="`>help ban <member> [reason]`")
+        await ctx.send(embed=em)
 
-        print(f"{username} said: '{user_message}' ({channel})")
+    @help.command()
+    async def warn(ctx):
+        em = discord.Embed(title="**Warn**", description="SOON"
+                           , color=ctx.author.color)
+        em.add_field(name="**SYNTAX**", value="`>help warn <member> [reason]`")
+        await ctx.send(embed=em)
 
-        if user_message == str:
-            user_message = user_message[1:]
-            await send_message(message, user_message, is_private=True)
-        else:
-            await send_message(message, user_message, is_private=False)
+    @help.command()
+    async def remind(ctx):
+        em = discord.Embed(title="**Reminder**", description="SOON"
+                           , color=ctx.author.color)
+        em.add_field(name="**SYNTAX**", value="`>help remind <member> [What did you want to be reminded of]`")
+        await ctx.send(embed=em)
+
+    @help.command()
+    async def play(ctx):
+        em = discord.Embed(title="**Reminder**", description="SOON"
+                           , color=ctx.author.color)
+        em.add_field(name="**SYNTAX**", value="`>help play <song>`")
+        await ctx.send(embed=em)
 
     client.run(TOKEN)
