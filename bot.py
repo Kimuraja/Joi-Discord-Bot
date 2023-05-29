@@ -1,11 +1,13 @@
+import aiohttp
 import discord
 from discord.ext import commands
-import os
-import youtube_dl
+# import os
+# import youtube_dl
+import openai
 
-TOKEN = "Your Token"
+TOKEN = ""
 intents = discord.Intents().all()
-
+API_KEY = ""
 
 def run_discord_bot():
     client = commands.Bot(command_prefix=">", intents=intents, help_command=None)
@@ -18,10 +20,10 @@ def run_discord_bot():
                                                                                  "Customizable Settings\n\nOver **5** "
                                                                                  "`>help <command>` Commands",
                            color=ctx.author.color)
-        em.add_field(name="**Moderation**", value="`>help kick` SOON\n"
-                                                  "`>help ban` SOON\n"
-                                                  "`>help warn` SOON\n"
-                                                  "`>help remind` SOON")
+        em.add_field(name="**Moderation**", value="`>kick` SOON\n"
+                                                  "`>ban` SOON\n"
+                                                  "`>warn` SOON\n"
+                                                  "`>remind` SOON")
         em.add_field(name="**Fun**", value="`Music YT, Spotify` SOON\n")
         await ctx.send(embed=em)
 
@@ -30,7 +32,7 @@ def run_discord_bot():
         em = discord.Embed(title="**Kick**",
                            description="Get rid of the replicant from this server using this command."
                            , color=ctx.author.color)
-        em.add_field(name="**SYNTAX**", value="`>help kick <member> [reason]`")
+        em.add_field(name="**SYNTAX**", value="`>kick <member> [reason]`")
         await ctx.send(embed=em)
 
     @client.command()
@@ -38,7 +40,7 @@ def run_discord_bot():
         em = discord.Embed(title="**Ban**",
                            description="Make sure the replicant doesn't come back using this command."
                            , color=ctx.author.color)
-        em.add_field(name="**SYNTAX**", value="`>help ban <member> [reason]`")
+        em.add_field(name="**SYNTAX**", value="`>ban <member> [reason]`")
         await ctx.send(embed=em)
 
     @client.command()
@@ -52,7 +54,7 @@ def run_discord_bot():
     async def remind(ctx):
         em = discord.Embed(title="**Reminder**", description="SOON"
                            , color=ctx.author.color)
-        em.add_field(name="**SYNTAX**", value="`>help remind <member> [What did you want to be reminded of]`")
+        em.add_field(name="**SYNTAX**", value="`>remind <member> [What did you want to be reminded of]`")
         await ctx.send(embed=em)
 
     @client.command(pass_context=True)
@@ -71,4 +73,24 @@ def run_discord_bot():
         else:
             await ctx.send("I am not in a vc")
 
+    #TODO 1 Read the documentation and make bot response with Chat GPT answer for a given question
+    @client.command()
+    async def gpt(ctx: commands.Context, *, prompt: str):
+        print(prompt)
+        async with aiohttp.ClientSession() as session:
+            payload = {
+                "model": "text-davinci-003",
+                "prompt": prompt,
+                "temperature": 0.5,
+                "max_tokens": 50,
+                "presence_penalty": 0,
+                "frequency_penalty": 0,
+                "best_of": 1,
+            }
+            headers = {"Authorization": f"Bearer {API_KEY}"}
+            async with session.post("https://api.openai.com/v1/completions", json=payload, headers=headers) as resp:
+                response = await resp.json()
+                em = discord.Embed(title="**GPT**", description=f"```{response}```"
+                                   , color=ctx.author.color)
+                await ctx.reply(embed=em)
     client.run(TOKEN)
