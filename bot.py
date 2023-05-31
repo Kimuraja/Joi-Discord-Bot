@@ -1,16 +1,22 @@
 import discord
 from discord.ext import commands
-from discord.utils import get
-from discord import FFmpegPCMAudio
-from youtube_dl import YoutubeDL
+import os
+import asyncio
+import youtube_dl
 
 TOKEN = "Your Token"
 intents = discord.Intents().all()
 # API_KEY = "Your Token"
+client = commands.Bot(command_prefix=">", intents=intents, help_command=None)
+voice_clients = {}
+
+yt_dl_opts = {'format': 'bestaudio/best'}
+ytdl = youtube_dl.YoutubeDL(yt_dl_opts)
+
+ffmpeg_options = {'options': "-vn"}
+
 
 def run_discord_bot():
-    client = commands.Bot(command_prefix=">", intents=intents, help_command=None)
-
     @client.group()
     async def help(ctx):
         em = discord.Embed(title=f"Hey, **{ctx.author}**, I am Joi", description="```A Discord Music Bot With Many "
@@ -56,38 +62,22 @@ def run_discord_bot():
         em.add_field(name="**SYNTAX**", value="```>remind <member> [What did you want to be reminded of]```")
         await ctx.reply(embed=em)
 
-    # @client.command(pass_context=True)
-    # async def play(ctx: commands.Context, *, prompt: str):
-    #     if ctx.author.voice:
-    #         channel = ctx.message.author.voice.channel
-    #         await channel.connect()
-    #         voice = get(client.voice_clients, guild=ctx.guild)
-    #         YDL_OPTIONS = {
-    #             'format': 'bestaudio',
-    #             'postprocessors': [{
-    #                 'key': 'FFmpegExtractAudio',
-    #                 'preferredcodec': 'mp3',
-    #                 'preferredquality': '192',
-    #             }],
-    #             'outtmpl': 'song.%(ext)s',
-    #         }
-    #
-    #         with YoutubeDL(Music.YDL_OPTIONS) as ydl:
-    #             ydl.download(prompt, download=True)
-    #
-    #         if not voice.is_playing():
-    #             voice.play(FFmpegPCMAudio("song.mp3"))
-    #             voice.is_playing()
-    #             await ctx.reply(f"Now playing {prompt}")
-    #         else:
-    #             await ctx.reply("Already playing song")
-    #             return
-    #
-    #     else:
-    #         em = discord.Embed(title="**JOI Music**")
-    #         em.add_field(name=">play [Link]", value="```You're not in a voice channel, you must be in a vc to run "
-    #                                                 "this command```")
-    #         await ctx.reply(embed=em)
+    @client.command()
+    async def play(ctx, msg):
+        try:
+            url = msg
+            voice_client = await ctx.author.voice.channel.connect()
+            voice_clients[voice_client.guild.id] = voice_client
+
+            loop = asyncio.get_event_loop()
+            data = await loop.run_in_executor(None, lambda: ytdl.extract_info(url, download=False, extra_info={'verbose': True}))
+
+            song = data['url']
+            player = discord.FFmpegPCMAudioSource()
+
+            voice_client.play(player)
+        except Exception as err:
+            print(err)
 
     @client.command(pass_context=True)
     async def leave(ctx):
