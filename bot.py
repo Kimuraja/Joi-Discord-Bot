@@ -5,13 +5,13 @@ from dotenv import dotenv_values
 from discord.ext import commands
 
 config = dotenv_values(".env")
-
 # API_KEY = "Your Token"
-TOKEN = ""
+TOKEN = "Your Token"
 intents = discord.Intents().all()
 client = commands.Bot(command_prefix=">", intents=intents, help_command=None)
 
 spotify = spotipy.Spotify(client_credentials_manager=SpotifyClientCredentials(client_id=config['CLIENT_ID'], client_secret=config['CLIENT_SECRET']))
+FFMPEG_OPTIONS = {'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5','options': '-vn'}
 
 
 # TODO #1 Make bot play music from spotify:
@@ -49,12 +49,16 @@ def run_discord_bot():
         await ctx.reply(embed=em)
 
     @client.command()
-    async def kick(ctx):
-        em = discord.Embed(title="**Kick**",
-                           description="Get rid of the replicant from this server using this command.",
-                           color=ctx.author.color)
-        em.add_field(name="**SYNTAX**", value="```>kick <member> [reason]```")
-        await ctx.reply(embed=em)
+    async def kick(ctx, user: discord.Member, *, reason="No reason provided"):
+        if ctx.message == "help":
+            em = discord.Embed(title="**Kick**", description="To kick replicant you need to use this command: "
+                                                             ">kick `[user]` `[reason]`")
+            await ctx.reply(embed=em)
+        else:
+            await user.kick(reason=reason)
+            await ctx.message.delete()
+            em = discord.Embed(title="**Kick**", description=f"{user} Has been kicked from the server")
+            await ctx.send(embed=em)
 
     @client.command()
     async def ban(ctx):
@@ -87,7 +91,7 @@ def run_discord_bot():
         if track_info:
             track_preview_url = track_info['album']['external_urls']['spotify']
             if track_preview_url:
-                voice_client.play(discord.FFmpegPCMAudio(track_preview_url))
+                voice_client.play(discord.FFmpegOpusAudio(track_preview_url))
 
     @client.command(pass_context=True)
     async def leave(ctx):
