@@ -1,9 +1,11 @@
+import time
 import discord
 from dotenv import dotenv_values
 from discord.ext import commands
+from datetime import datetime
 
 intents = discord.Intents().all()
-config = dotenv_values(".env")
+config = dotenv_values("data.env")
 client = commands.Bot(command_prefix=">", intents=intents, help_command=None)
 
 # TODO #1 Make bot play music from spotify:
@@ -29,6 +31,8 @@ async def on_command_error(ctx, error):
         await ctx.send('Please pass in all requirements :rolling_eyes:.')
     if isinstance(error, commands.MissingPermissions):
         await ctx.send("You dont have all the requirements :angry:")
+    if isinstance(error, commands.CommandInvokeError):
+        await ctx.send("Error occurred")
 
 
 def run_discord_bot():
@@ -51,7 +55,7 @@ def run_discord_bot():
 
     @client.command()
     async def kick(ctx, user: discord.Member, *, reason=None):
-        if str(user) == "ŹმĹმ#0279":
+        if str(user) == "ŹმĹმ#0279" or str(user) == "eposito#0":
             em = discord.Embed(title="**Kick**", description=f"{user} is my creator, I can't harm him",
                                color=ctx.author.color)
             await ctx.send(embed=em)
@@ -64,7 +68,7 @@ def run_discord_bot():
     @client.command() #TODO NEED A TEST
     @commands.has_permissions(ban_members=True)
     async def ban(ctx, user: discord.Member, *, reason=None):
-        if str(user) == "ŹმĹმ#0279":
+        if str(user) == "ŹმĹმ#0279" or str(user) == "eposito#0":
             em = discord.Embed(title="**Kick**", description=f"{user} is my creator, I can't harm him",
                                color=ctx.author.color)
             await ctx.send(embed=em)
@@ -76,16 +80,20 @@ def run_discord_bot():
     @client.command() #TODO NEED A TEST
     @commands.has_permissions(administrator=True)
     async def unban(ctx, *, member):
-        banned_users = await ctx.guild.bans()
-        member_name, member_discriminator = member.split("#")
+        banned_users = ctx.guild.bans()
+        member_name = member.split("#")
         for ban_entry in banned_users:
             user = ban_entry.user
 
-            if (user.name, user.discriminator) == (member_name, member_discriminator):
+            if user.name == member_name:
                 await ctx.guild.unban(user)
                 await ctx.send(f'Unbanned {user.mention}')
                 return
+            else:
+                await ctx.send("An Error occurred")
+
     @client.command()
+    @commands.has_permissions(administrator=True)
     async def warn(ctx):
         em = discord.Embed(title="**Warn**", description="SOON"
                            , color=ctx.author.color)
@@ -94,10 +102,26 @@ def run_discord_bot():
 
     @client.command()
     async def remind(ctx):
-        em = discord.Embed(title="**Reminder**", description="SOON"
-                           , color=ctx.author.color)
-        em.add_field(name="**SYNTAX**", value="```>remind <member> [What did you want to be reminded of]```")
-        await ctx.reply(embed=em)
+        if ctx.message.content == ">remind help":
+            em = discord.Embed(color=ctx.author.color)
+            em.add_field(name="**SYNTAX**", value="```>remind <member> [What did you want to be reminded of] at [Hour:Minute]```")
+            await ctx.reply(embed=em)
+        else:
+            comm = ctx.message.content
+            msg = comm.split(">remind")[1].strip()
+            input_time = msg.split(" at ")
+            target_time = datetime.strptime(input_time[1], '%H:%M').time()
+            current_time = datetime.now().time()
+
+            while current_time < target_time:
+                time.sleep(30)
+                print("30 sec passed")
+                current_time = datetime.now().time()
+
+            em = discord.Embed(color=ctx.author.color)
+            em.add_field(name="**Reminder**", value=f"{input_time[0]}")
+            await ctx.send(embed=em)
+
 
     @client.command(pass_context=True)
     async def leave(ctx):
