@@ -65,7 +65,7 @@ def run_discord_bot():
             await ctx.send(embed=em)
             await user.kick(reason=reason)
 
-    @client.command() #TODO NEED A TEST
+    @client.command()
     @commands.has_permissions(ban_members=True)
     async def ban(ctx, user: discord.Member, *, reason=None):
         if str(user) == "ŹმĹმ#0279" or str(user) == "eposito#0":
@@ -73,26 +73,16 @@ def run_discord_bot():
                                color=ctx.author.color)
             await ctx.send(embed=em)
         else:
+
+            command = ctx.message.content
+            msg = command.split(">ban")[1].strip()
+            r = msg.split(" for ")
             em = discord.Embed(title="**Ban**", description=f"Replicant {user} has been purged", color=ctx.author.color)
+            await user.send(f"You've been banned for {r[1]}")
             await user.ban(reason=reason)
             await ctx.reply(embed=em)
 
     @client.command() #TODO NEED A TEST
-    @commands.has_permissions(administrator=True)
-    async def unban(ctx, *, member):
-        banned_users = ctx.guild.bans()
-        member_name = member.split("#")
-        for ban_entry in banned_users:
-            user = ban_entry.user
-
-            if user.name == member_name:
-                await ctx.guild.unban(user)
-                await ctx.send(f'Unbanned {user.mention}')
-                return
-            else:
-                await ctx.send("An Error occurred")
-
-    @client.command()
     @commands.has_permissions(administrator=True)
     async def warn(ctx):
         em = discord.Embed(title="**Warn**", description="SOON"
@@ -101,6 +91,8 @@ def run_discord_bot():
         await ctx.reply(embed=em)
 
     @client.command()
+    #TODO Fix error that occurs after few seconds of working
+    #TODO LINE: 101
     async def remind(ctx):
         if ctx.message.content == ">remind help":
             em = discord.Embed(color=ctx.author.color)
