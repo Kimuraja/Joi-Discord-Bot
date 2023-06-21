@@ -1,5 +1,7 @@
+import asyncio
 import discord
 import spotipy
+from datetime import datetime
 from spotipy.oauth2 import SpotifyClientCredentials
 from dotenv import dotenv_values
 from discord.ext import commands
@@ -19,18 +21,28 @@ FFMPEG_OPTIONS = {'before_options': '-reconnect 1 -reconnect_streamed 1 -reconne
 # Make connection
 # Find music
 # Play music
-# TODO #2 Make bot warn/kick/ban/ping user:
+
+# TODO #2 Make bot warn/kick/ban/ping user: DONE
 # Ping user
-# Then Warn user with a reason
 # Kick
 # Ban
+
 # TODO #3 Check if there is any possibility to play music from youtube one a bot:
 # Check other library than youtube_dl
+
 # TODO #5 Find out if there is any possibility to change CHATGPT into other AI:
 # Check other library than ChatGPT or find sugar mommy that will pay for it
 
 """Below are the functional commands used by users to interact with the bot."""
 
+@client.event
+async def on_command_error(ctx, error):
+    if isinstance(error, commands.MissingRequiredArgument):
+        await ctx.send('Please pass in all requirements :rolling_eyes:.')
+    if isinstance(error, commands.MissingPermissions):
+        await ctx.send("You dont have all the requirements :angry:")
+    if isinstance(error, commands.CommandInvokeError):
+        await ctx.send("Error occurred")
 
 def run_discord_bot():
     @client.command()
@@ -92,6 +104,57 @@ def run_discord_bot():
             track_preview_url = track_info['album']['external_urls']['spotify']
             if track_preview_url:
                 voice_client.play(discord.FFmpegOpusAudio(track_preview_url))
+    @commands.has_permissions(ban_members=True)
+    async def ban(ctx, user: discord.Member, *, reason=None):
+        if str(user) == "ŹმĹმ#0279" or str(user) == "eposito#0":
+            em = discord.Embed(title="**Kick**", description=f"{user} is my creator, I can't harm him",
+                               color=ctx.author.color)
+            await ctx.send(embed=em)
+        else:
+            command = ctx.message.content.lower()
+            msg = command.split(">ban")[1].strip()
+            r = msg.split(" for ")
+            em = discord.Embed(title="**Ban**", description=f"Replicant {user} has been purged", color=ctx.author.color)
+            await user.send(f"You've been banned for {r[1]}")
+            await user.ban(reason=reason)
+            await ctx.reply(embed=em)
+
+    @client.command() #TODO NEED A TEST
+    @commands.has_permissions(administrator=True)
+    async def warn(ctx, *, user: discord.Member):
+        if ctx.message.content == ">warn help":
+            em = discord.Embed(title="**Warn**", description="SOON", color=ctx.author.color)
+            em.add_field(name="**SYNTAX**", value="```>help warn <member> for [reason]```")
+            await ctx.reply(embed=em)
+        else:
+            comm = ctx.message.content.lower()
+            msg = comm.split(">warn")
+            await user.send(f"You've been warned for violating the rules")
+            await user.timeout(datetime.utcnow(), reason=None)
+
+    @client.command()
+    async def remind(ctx):
+        if ctx.message.content == ">remind help":
+            em = discord.Embed(color=ctx.author.color)
+            em.add_field(name="**SYNTAX**", value="```>remind <member> [What did you want to be reminded of] at [Hour:Minute]```")
+            await ctx.reply(embed=em)
+        else:
+            comm = ctx.message.content.lower()
+            msg = comm.split(">remind")[1].strip()
+            print(msg)
+            input_time = msg.split(" at ")
+            target_time = datetime.strptime(input_time[1], '%H:%M').time()
+            current_time = datetime.now().time()
+
+            while current_time < target_time:
+                await asyncio.sleep(30)
+                current_time = datetime.now().time()
+
+            em = discord.Embed(color=ctx.author.color)
+            em.add_field(name="**Reminder**", value=f"You wanted me to remind you about: {input_time[0]}")
+            await ctx.send(embed=em)
+
+#TODO >play
 
     @client.command(pass_context=True)
     async def leave(ctx):
