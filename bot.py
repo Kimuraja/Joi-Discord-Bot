@@ -4,6 +4,7 @@ from datetime import datetime
 import youtube_dl
 from dotenv import dotenv_values
 from discord.ext import commands
+import traceback
 # from discord import Member
 # from discord.ext.commands import has_permissions, MissingPermissions
 
@@ -25,20 +26,6 @@ client = commands.Bot(command_prefix=">", intents=intents, help_command=None)
 # TODO #6 Find out how to make bot working 24/7
 
 
-@client.event
-async def on_command_error(ctx, error):
-    if isinstance(error, commands.MissingRequiredArgument):
-        await ctx.send('Please pass in all requirements :rolling_eyes:.')
-    elif isinstance(error, commands.MissingPermissions):
-        await ctx.send("You dont have all the requirements :angry:")
-    elif isinstance(error, commands.CommandInvokeError):
-        await ctx.send("Error occurred")
-    elif isinstance(error, discord.errors.Forbidden):
-        await ctx.send("You dont have all the requirements")
-    elif isinstance(error, commands.MemberNotFound):
-        await ctx.send("Member not found")
-
-
 def run_discord_bot():
     client = commands.Bot(command_prefix=">", intents=intents, help_command=None)
 
@@ -57,58 +44,87 @@ def run_discord_bot():
         em.add_field(name="**Fun**", value="`Music YT, Spotify` SOON\n")
         await ctx.reply(embed=em)
 
+    @client.event
+    async def on_command_error(ctx, error):
+        if isinstance(error, commands.MissingRequiredArgument):
+            await ctx.send('Please pass in all requirements :rolling_eyes:.')
+        elif isinstance(error, commands.CommandInvokeError):
+            await ctx.send("Error occurred")
+        elif isinstance(error, discord.errors.Forbidden):
+            await ctx.send("You dont have all the requirements")
+        elif isinstance(error, commands.MemberNotFound):
+            await ctx.send("Member not found")
+        elif isinstance(error, commands.MissingPermissions):
+            if ctx.command.name in ['kick', 'ban', 'warn']:
+                await ctx.send("You don't have the required permissions to run this command.")
+            else:
+                await ctx.send("You dont have all the requirements :angry:")
+        else:
+            print(''.join(traceback.format_exception(type(error), error, error.__traceback__)))
+
     @client.command(name="kick", pass_context=True)
     @commands.has_permissions(manage_roles=True, kick_members=True)
-    async def kick(ctx, user: discord.Member):
-        if str(user) == "ŹმĹმ#0279" or str(user) == "eposito#0":
-            em = discord.Embed(title="**Kick**", description=f"{user} is my creator, I can't harm him",
-                               color=ctx.author.color)
-            await ctx.send(embed=em)
-        else:
-            command = ctx.message.content.lower()
-            msg = command.split(">kick")[1].strip()
-            r = msg.split(" for ")
-            em = discord.Embed(title="**Kick**", description=f"{user} has been kicked from the server for {r[1]}",
-                               color=ctx.author.color)
-            await ctx.send(embed=em)
-            if commands.has_permissions(administrator=True):
-                await user.send(f"You've been kicked from the server for {r[1]}")
-                await user.kick(reason=None)
-            else:
-                await ctx.send("You don't have permission")
-
-    @client.command()
-    @commands.has_permissions(ban_members=True)
-    async def ban(ctx, user: discord.Member, *, reason=None):
-        if str(user) == "ŹმĹმ#0279" or str(user) == "eposito#0":
-            em = discord.Embed(title="**Kick**", description=f"{user} is my creator, I can't harm him",
-                               color=ctx.author.color)
-            await ctx.send(embed=em)
-        else:
-            command = ctx.message.content.lower()
-            msg = command.split(">ban")[1].strip()
-            r = msg.split(" for ")
-            em = discord.Embed(title="**Ban**", description=f"Replicant {user} has been purged", color=ctx.author.color)
-            await user.send(f"You've been banned for {r[1]}")
-            await user.ban(reason=reason)
-            await ctx.reply(embed=em)
-
-    @client.command()
-    @commands.has_permissions(warn_members=True)
-    async def warn(ctx, *, user: discord.Member):
-        if user == "help":
-            em = discord.Embed(title="**Warn**", description="SOON", color=ctx.author.color)
-            em.add_field(name="**SYNTAX**", value="```>help warn <member> for [reason]```")
-            await ctx.reply(embed=em)
-        else:
+    async def kick(ctx, user: discord.Member, error):
+        try:
             if str(user) == "ŹმĹმ#0279" or str(user) == "eposito#0":
                 em = discord.Embed(title="**Kick**", description=f"{user} is my creator, I can't harm him",
                                    color=ctx.author.color)
                 await ctx.send(embed=em)
             else:
-                print("Bug")
-                # await user.timeout(datetime.utcnow(), reason=None)
-                # await user.send(f"You've been warned for violating the rules")
+                command = ctx.message.content.lower()
+                msg = command.split(">kick")[1].strip()
+                r = msg.split(" for ")
+                em = discord.Embed(title="**Kick**", description=f"{user} has been kicked from the server for {r[1]}",
+                                   color=ctx.author.color)
+                await ctx.send(embed=em)
+                if commands.has_permissions(administrator=True):
+                    await user.send(f"You've been kicked from the server for {r[1]}")
+                    await user.kick(reason=None)
+        finally:
+            if isinstance(error, commands.errors.MissingPermissions):
+                await ctx.send('MissingPermissions...')
+
+
+    @client.command()
+    @commands.has_permissions(ban_members=True)
+    async def ban(ctx, user: discord.Member, *, reason=None):
+        try:
+            if str(user) == "ŹმĹმ#0279" or str(user) == "eposito#0":
+                em = discord.Embed(title="**Kick**", description=f"{user} is my creator, I can't harm him",
+                                   color=ctx.author.color)
+                await ctx.send(embed=em)
+            else:
+                command = ctx.message.content.lower()
+                msg = command.split(">ban")[1].strip()
+                r = msg.split(" for ")
+                em = discord.Embed(title="**Ban**", description=f"Replicant {user} has been purged", color=ctx.author.color)
+                await user.send(f"You've been banned for {r[1]}")
+                await user.ban(reason=reason)
+                await ctx.reply(embed=em)
+        except on_command_error() as err:
+            em = discord.Embed(title="**Error**", description=f"{err}")
+            await ctx.reply(embed=em)
+
+    @client.command()
+    @commands.has_permissions(mute_members=True)
+    async def warn(ctx, *, user: discord.Member):
+        try:
+            if user == "help":
+                em = discord.Embed(title="**Warn**", description="SOON", color=ctx.author.color)
+                em.add_field(name="**SYNTAX**", value="```>help warn <member> for [reason]```")
+                await ctx.reply(embed=em)
+            else:
+                if str(user) == "ŹმĹმ#0279" or str(user) == "eposito#0":
+                    em = discord.Embed(title="**Kick**", description=f"{user} is my creator, I can't harm him",
+                                       color=ctx.author.color)
+                    await ctx.send(embed=em)
+                else:
+                    print("Bug")
+                    # await user.timeout(datetime.utcnow(), reason=None)
+                    # await user.send(f"You've been warned for violating the rules")
+        except discord.ext.commands.MissingPermissions as err:
+            em = discord.Embed(title="**Error**", description=f"{err}")
+            await ctx.reply(embed=em)
 
     @client.command()
     async def remind(ctx):
@@ -131,9 +147,10 @@ def run_discord_bot():
             em = discord.Embed(color=ctx.author.color)
             em.add_field(name="**Reminder**",
                          value=f"{ctx.message.author.mention} You wanted me to remind you about: {input_time[0]}")
-            await ctx.reply(embed=em)
+            await ctx.send(embed=em)
 
-    @client.command()
+    @client.command() #TODO Work this out and test on a vc
+    #Additional command access to use this command
     async def play(ctx):
 
         if ctx.voice_client:
@@ -151,6 +168,7 @@ def run_discord_bot():
             voice.play(discord.FFmpegPCMAudio(URL))
 
     @client.command(pass_context=True)
+    #Additional command access to use this command
     async def leave(ctx):
         if ctx.voice_client:
             em = discord.Embed()
