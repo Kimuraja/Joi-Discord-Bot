@@ -2,32 +2,43 @@ import asyncio
 import discord
 from datetime import datetime
 from youtube_dl import YoutubeDL
-from dotenv import dotenv_values
 from discord.ext import commands
+from dotenv import dotenv_values
+from discord.ext.commands import Bot as BotBase
+from glob import glob
 
-music_queue = []
-YDL_OPTIONS = {'format': 'bestaudio', 'noplaylist': 'True'}
-FFMPEG_OPTIONS = {'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5', 'options': '-vn'}
+
+COGS = [path.split("\\")[-1][:-3] for path in glob("./lib/cogs/*.py")]
 intents = discord.Intents().all()
 config = dotenv_values("data.env")
-client = commands.Bot(command_prefix=">", intents=intents, help_command=None)
+bot = commands.Bot(command_prefix=">", intents=intents, help_command=None)
 
 
 # TODO #1 Make bot play music from spotify/youtube:
 # Read the documentation
 # Play music
+
 # TODO #3 Check if there is any possibility to play music from youtube one a bot:
 # Check other library than youtube_dl
+
 # TODO #5 Find out if there is any possibility to change CHATGPT into other AI:
 # Check other library than ChatGPT or find sugar mommy that will pay for it
+
 # TODO #6 Find out how to make bot working 24/7
 
+# TODO Additional functions that can be added to bot:
+# Automated Announcements
+# Customizations and settings
+# Polls and voting
+# Role Management
 
-def run_discord_bot():
-    bot = commands.Bot(command_prefix=">", intents=intents, help_command=None)
+class Client(commands.Cog):
+    def __int__(self, bot):
+        self.bot = bot
 
-    @bot.group()
-    async def help(ctx):
+    @commands.Cog.listener()
+    @bot.command()
+    async def help(self, ctx):
         em = discord.Embed(title=f"Hey, **{ctx.message.author.name}**, I am Joi",
                            description="```A Discord Music Bot With Many "
                                        "Awesome Features, Buttons, Menus, "
@@ -41,72 +52,9 @@ def run_discord_bot():
         em.add_field(name="**Fun**", value="`Music YT, Spotify` SOON\n")
         await ctx.reply(embed=em)
 
-    @bot.command(name="kick", pass_context=True)
-    @commands.has_permissions(manage_roles=True, kick_members=True)
-    async def kick(ctx, user: discord.Member, error):
-        try:
-            if str(user) == "ŹმĹმ#0279" or str(user) == "eposito#0":
-                em = discord.Embed(title="**Kick**", description=f"{user} is my creator, I can't harm him",
-                                   color=ctx.author.color)
-                await ctx.send(embed=em)
-            else:
-                command = ctx.message.content.lower()
-                msg = command.split(">kick")[1].strip()
-                r = msg.split(" for ")
-                em = discord.Embed(title="**Kick**", description=f"{user} has been kicked from the server for {r[1]}",
-                                   color=ctx.author.color)
-                await ctx.send(embed=em)
-                if commands.has_permissions(administrator=True):
-                    await user.send(f"You've been kicked from the server for {r[1]}")
-                    await user.kick(reason=None)
-        finally:
-            if isinstance(error, commands.errors.MissingPermissions):
-                await ctx.send('MissingPermissions...')
-
+    @commands.Cog.listener()
     @bot.command()
-    @commands.has_permissions(ban_members=True)
-    async def ban(ctx, user: discord.Member, *, reason=None):
-        try:
-            if str(user) == "ŹმĹმ#0279" or str(user) == "eposito#0":
-                em = discord.Embed(title="**Kick**", description=f"{user} is my creator, I can't harm him",
-                                   color=ctx.author.color)
-                await ctx.send(embed=em)
-            else:
-                command = ctx.message.content.lower()
-                msg = command.split(">ban")[1].strip()
-                r = msg.split(" for ")
-                em = discord.Embed(title="**Ban**", description=f"Replicant {user} has been purged",
-                                   color=ctx.author.color)
-                await user.send(f"You've been banned for {r[1]}")
-                await user.ban(reason=reason)
-                await ctx.reply(embed=em)
-        except on_command_error() as err:
-            em = discord.Embed(title="**Error**", description=f"{err}")
-            await ctx.reply(embed=em)
-
-    @bot.command()
-    @commands.has_permissions(mute_members=True)
-    async def warn(ctx, *, user: discord.Member):
-        try:
-            if user == "help":
-                em = discord.Embed(title="**Warn**", description="SOON", color=ctx.author.color)
-                em.add_field(name="**SYNTAX**", value="```>help warn <member> for [reason]```")
-                await ctx.reply(embed=em)
-            else:
-                if str(user) == "ŹმĹმ#0279" or str(user) == "eposito#0":
-                    em = discord.Embed(title="**Kick**", description=f"{user} is my creator, I can't harm him",
-                                       color=ctx.author.color)
-                    await ctx.send(embed=em)
-                else:
-                    print("Bug")
-                    # await user.timeout(datetime.utcnow(), reason=None)
-                    # await user.send(f"You've been warned for violating the rules")
-        except discord.ext.commands.MissingPermissions as err:
-            em = discord.Embed(title="**Error**", description=f"{err}")
-            await ctx.reply(embed=em)
-
-    @bot.command()
-    async def remind(ctx):
+    async def remind(self, ctx):
         if ctx.message.content == ">remind help":
             em = discord.Embed(color=ctx.author.color)
             em.add_field(name="**SYNTAX**",
@@ -129,8 +77,9 @@ def run_discord_bot():
             await ctx.send(embed=em)
 
     @bot.command()
+    @commands.Cog.listener()
     # Additional command access to use this command
-    async def play(ctx):
+    async def play(self, ctx):
         if not ctx.author.voice.channel:
             await ctx.send("You're not on a voice channel")
         else:
@@ -149,7 +98,7 @@ def run_discord_bot():
 
     @bot.command(pass_context=True)
     # Additional command access to use this command
-    async def leave(ctx):
+    async def leave(self, ctx):
         if ctx.voice_client:
             em = discord.Embed()
             em.add_field(name="JOI Music", value="```Goodbye```")
@@ -160,8 +109,18 @@ def run_discord_bot():
             em.add_field(name="JOI Music", value="```An Error occurred, I am not in a vc```")
             await ctx.reply(embed=em)
 
+    @bot.command(pass_context=True)
+    async def voting(self, ctx):
+        # TODO Vote -> To be continued...
+        if ctx.message.content == ">vote help":
+            em = discord.Embed(color=ctx.message.author)
+            em.add_field(name="**Vote system**", value="```vote syntax```")
+            await ctx.reply(embed=em)
+        else:
+            pass
+
     @bot.event
-    async def on_command_error(ctx, error):
+    async def on_command_error(self, ctx, error):
         if isinstance(error, commands.MissingRequiredArgument):
             await ctx.reply('Please pass in all requirements :rolling_eyes:.')
         elif isinstance(error, commands.CommandInvokeError):
@@ -176,7 +135,41 @@ def run_discord_bot():
             else:
                 await ctx.reply("You dont have all the requirements :angry:")
 
-    bot.run(config["TOKEN"])
+
+class Ready(object):
+    def __init__(self):
+        for cog in COGS:
+            setattr(self, cog, False)
+
+    def ready_up(self, cog):
+        setattr(self, cog, True)
+        print(f" {cog} cog ready")
+
+    def all_ready(self):
+        return all([getattr(self, cog) for cog in COGS])
+
+
+class Bot(BotBase):
+    def __int__(self):
+        self.ready = False
+        self.cogs_ready = Ready()
+
+    def setup(self):
+        for cog in COGS:
+            self.load_extension(f"lib.cogs.{cog}")
+            print(f"{cog} cog loaded")
+        print("Setup complete")
+
+    def run(self):
+        self.setup()
+
+        print("running setup...")
+        self.setup()
+
+        # with open("./lib/bot/token.0", "r", encoding="utf-8") as tf:
+        #     self.TOKEN = tf.read()
+
+        # super().run(self.TOKEN, reconnect=True)
 
 
 """After paying for the ChatGPT subscription, you will have the ability to use it in your bot using the code below"""
