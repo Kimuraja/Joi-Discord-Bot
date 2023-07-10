@@ -1,4 +1,3 @@
-import asyncio
 import os
 import discord
 from discord.ext import commands
@@ -19,9 +18,6 @@ async def load():
 async def main():
     await load()
     await bot.start(config["TOKEN"])
-
-asyncio.run(main())
-
 
 
 
