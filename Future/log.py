@@ -6,7 +6,7 @@ from discord_logging.handler import DiscordHandler
 
 
 class Log(Cog):
-    webhook_url = None
+    webhook_url = "https://discord.com/api/webhooks/1127462640592113684/BnwsQpzUKBY-PUh0IiivMGyKh3HarQqZn47tJBFRFJ_DCWWXUxvC1Npm7XQEa67TlKw0"
     logger = logging.getLogger()
 
     stream_format = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
@@ -14,8 +14,7 @@ class Log(Cog):
 
     discord_handler = DiscordHandler(
         "Hello World Bot",
-        webhook_url="https://discord.com/api/webhooks/1127462640592113684/BnwsQpzUKBY"
-                    "-PUh0IiivMGyKh3HarQqZn47tJBFRFJ_DCWWXUxvC1Npm7XQEa67TlKw0",
+        webhook_url=webhook_url,
     )
 
     discord_handler.setFormatter(discord_format)

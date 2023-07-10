@@ -1,7 +1,7 @@
 import discord
 from discord.ext.commands import command, has_permissions, bot_has_permissions
 from discord.ext.commands import Cog
-import asyncio
+from datetime import timedelta
 
 
 class Mod(Cog):
@@ -10,7 +10,7 @@ class Mod(Cog):
 
     @Cog.listener()
     async def on_ready(self):
-        print('Ready !')
+        print('Moderation -> Ready !')
 
     @command(name="help")
     async def help(self, ctx):
@@ -30,70 +30,48 @@ class Mod(Cog):
     @command(name="kick")
     @bot_has_permissions(kick_members=True)
     @has_permissions(kick_members=True)
-    async def kick(self, ctx, user: discord.Member, *, reason=None):  # TODO NEED A TEST
-        if str(user) == "ŹმĹმ#0279" or str(user) == "eposito#0":
+    async def kick(self, ctx, user: discord.Member, reason):
+        if user.id == "317374704027566091" or str(user) == "eposito#0":
             em = discord.Embed(title="**Kick**", description=f"{user} is my creator, I can't harm him",
                                color=ctx.author.color)
             await ctx.send(embed=em)
         else:
-            comm = ctx.message.content.lower()
-            msg = comm.split(">kick")[1].strip()
-            r = msg.split(" for ")
-            em = discord.Embed(title="**Kick**", description=f"{user} has been kicked from the server for {r[1]}",
+            em = discord.Embed(title="**Kick**", description=f"{user} has been kicked from the server for {reason}",
                                color=ctx.author.color)
-            await user.kick(reason=reason)
-            await user.send(f"You've been kicked from the server for {r[1]}")
             await ctx.reply(embed=em)
+            await user.send(f"You've been kicked from the server for {reason}")
+            await user.kick(reason=reason)
 
     @command(name="ban")
     @bot_has_permissions(ban_members=True)
     @has_permissions(ban_members=True)
-    async def ban(self, ctx, user: discord.Member, *, reason=None):  # TODO NEED A TEST
-        if str(user) == "ŹმĹმ#0279" or str(user) == "eposito#0":
+    async def ban(self, ctx, user: discord.Member, reason):
+        if user.id == "317374704027566091" or str(user) == "eposito#0":
             em = discord.Embed(title="**Kick**", description=f"{user} is my creator, I can't harm him",
                                color=ctx.author.color)
             await ctx.send(embed=em)
         else:
-            comm = ctx.message.content.lower()
-            msg = comm.split(">ban")[1].strip()
-            r = msg.split(" for ")
             em = discord.Embed(title="**Ban**", description=f"Replicant {user} has been purged",
                                color=ctx.author.color)
-            await user.ban(reason=reason)
-            await user.send(f"You've been banned for {r[1]}")
             await ctx.reply(embed=em)
+            await user.send(f"You've been banned for {reason}")
+            await user.ban(reason=reason)
 
     @command(name="warn")
-    @bot_has_permissions(mute_members=True)
-    @has_permissions(mute_members=True)
-    async def warn(self, ctx, *, user: discord.Member, mute_time: int):  # TODO NEED A TEST
-        if user == "help":
-            em = discord.Embed(title="**Warn**", description="SOON", color=ctx.author.color)
-            em.add_field(name="**SYNTAX**", value="```>help warn <member> for [reason]```")
-            await ctx.reply(embed=em)
+    async def warn(self, ctx, user: discord.Member, reason):
+        if user.id == "317374704027566091" or str(user) == "eposito#0":
+            em = discord.Embed(title="**Kick**", description=f"{user.mention} is my creator, I can't harm him",
+                               color=ctx.author.color)
+            await ctx.send(embed=em)
         else:
-            if str(user) == "ŹმĹმ#0279" or str(user) == "eposito#0":
-                em = discord.Embed(title="**Kick**", description=f"{user.mention} is my creator, I can't harm him",
-                                   color=ctx.author.color)
-                await ctx.send(embed=em)
-            else:
-                guild = ctx.guild
-                for role in guild.roles:
-                    if role.name == "Muted":
-                        await user.add_roles(role)
-                        await ctx.send(f"{user.mention} has has been muted!")
-                        await asyncio.sleep(mute_time)
-                        await user.remove_roles(role)
-                        await ctx.send(f"{user.mention} has been unmuted!")
+            print("Work")
+            await user.timeout(timedelta(minutes=15))
+            await ctx.send(f"{user.mention} has been muted because {reason}")
 
     @command()
-    @has_permissions(kick_members=True)
-    async def unmute(self, ctx, user: discord.Member):
-        guild = ctx.guild
-        for role in guild.roles:
-            if role.name == "Muted":
-                await user.remove_roles(role)
-                await ctx.send(f"{user.mention} has has been unmuted!")
+    async def unwarn(self, ctx, user: discord.Member):
+        await user.timeout(timedelta(minutes=0))
+        await ctx.send(f"{user.mention} has been unmuted")
 
     # @Cog.listener()
     # async def on_command_error(self, ctx, error):
