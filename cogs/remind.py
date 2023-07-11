@@ -29,7 +29,7 @@ class Remind(Cog):
             current_time = self.dt.now().time()
 
             while current_time < target_time:
-                await asyncio.sleep(30)
+                await asyncio.sleep(15)
                 current_time = datetime.now().time()
 
             em = discord.Embed(color=ctx.author.color)
