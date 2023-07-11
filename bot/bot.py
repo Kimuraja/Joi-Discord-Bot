@@ -18,30 +18,3 @@ async def load():
 async def main():
     await load()
     await bot.start(config["TOKEN"])
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
