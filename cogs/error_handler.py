@@ -8,9 +8,7 @@ class ErrorHandler(Cog):
             await ctx.reply('Please pass in all requirements :rolling_eyes:.')
         elif isinstance(error, CommandInvokeError):
             if ctx.command.name in ['play']:
-                await ctx.reply("You're not on a specific voice channel")
-            else:
-                await ctx.reply("Error occurred")
+                await ctx.reply(f"Error occurred: {error}")
         elif isinstance(error, MemberNotFound):
             await ctx.reply("Member not found")
         elif isinstance(error, MissingPermissions):

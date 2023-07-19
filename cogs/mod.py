@@ -34,6 +34,8 @@ class Mod(Cog):
         if user.id == "317374704027566091" or str(user) == "eposito#0":
             em = discord.Embed(title="**Kick**", description=f"{user} is my creator, I can't harm him",
                                color=ctx.author.color)
+            em.set_image(url=None)
+            em.set_footer(text="Text here")
             await ctx.send(embed=em)
         else:
             em = discord.Embed(title="**Kick**", description=f"{user} has been kicked from the server for {reason}",
