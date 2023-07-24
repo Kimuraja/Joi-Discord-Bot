@@ -2,6 +2,8 @@ from discord.ext.commands import Cog, command
 from dotenv import dotenv_values
 # import spotify
 import discord
+import ctypes
+import ctypes.util
 
 config = dotenv_values("data.env")
 
@@ -37,7 +39,6 @@ class Music(Cog):
             await self.vc[ID].move_to(channel)
 
     async def search(self, ctx):
-        discord.opus.load_opus("opus")
         if self.is_playing and self.clear is not None:
             await self.add_queue()
         else:
@@ -67,11 +68,25 @@ class Music(Cog):
         pass_conetxt=True
     )
     async def play(self, ctx):
-        ID = int(ctx.guild.id)
-        await self.join_vc(ctx)
-        await self.search(ctx)
-        self.is_playing = True
-        self.vc[ID].play(discord.FFmpegPCMAudio(self.URL, **self.FFMPEG_OPTIONS))
+        print("ctypes - Find opus:")
+        a = ctypes.util.find_library('opuslib')
+        print(a)
+
+        print("Discord - Load Opus:")
+        b = discord.opus.load_opus(a)
+        print(b)
+
+        print("Discord - Is loaded:")
+        c = discord.opus.is_loaded()
+        print(c)
+        if not discord.opus.is_loaded():
+            discord.opus.load_opus("opus")
+        else:
+            ID = int(ctx.guild.id)
+            await self.join_vc(ctx)
+            await self.search(ctx)
+            self.is_playing = True
+            self.vc[ID].play(discord.FFmpegPCMAudio(self.URL, **self.FFMPEG_OPTIONS))
 
 
 async def setup(bot):
