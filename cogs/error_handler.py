@@ -2,6 +2,7 @@ from discord.ext.commands import Cog, MissingRequiredArgument, CommandInvokeErro
 
 
 class ErrorHandler(Cog):
+    #TODO Refactor code, make it more redable and good looking
     @Cog.listener()
     async def on_command_error(self, ctx, error):
         if isinstance(error, MissingRequiredArgument):
