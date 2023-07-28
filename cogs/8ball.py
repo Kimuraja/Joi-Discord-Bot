@@ -13,8 +13,8 @@ class Ball(Cog):
         with open('./json/8ball.json') as f:
             data = json.load(f)
             answer = str(random.choice(data['answers']))
-            em = discord.Embed(title="**Bot Answer**", description=f"{answer}", color=15277667)
-            await ctx.send(embed=em)
+            em = discord.Embed(title=f"**Joi Answer**", description=f"{answer}", color=15277667)
+            await ctx.reply(embed=em)
 
 
 async def setup(bot):

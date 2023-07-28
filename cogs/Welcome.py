@@ -43,7 +43,7 @@ class Welcome(Cog):
                             color=15277667)
 
         self.embed_list = [em1, em2, em3]
-        await message.channel.send(f"Hey {message.author.mention} 👋, welcome to **{message.guild.name}**!\n\n "
+        await message.author.send(f"Hey {message.author.mention} 👋, welcome to **{message.guild.name}**!\n\n "
                                    f"There's more info below, or if you have more specific questions, "
                                    f"feel free to ask.\n\n", embeds=self.embed_list,)
 
