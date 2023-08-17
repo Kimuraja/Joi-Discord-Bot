@@ -20,23 +20,24 @@ class Vote(Cog):
 
     async def on_message(self, ctx):
         self.params = ctx.message.content
-
         inp_role = self.params.split(",")[0].replace(">poll", "").strip()
         clear_role = inp_role.replace("<@&", "").replace(">", "")
         role = get(ctx.guild.roles, id=int(clear_role))
 
+        print(role)
         self.input_time = self.dt.strptime(self.params.split(" at ")[1], '%H:%M').time()
         current_time = self.dt.now().time()
         description = (self.params.split(" at ")[0].replace(">poll", "").strip())
         options = description.split(",")[1].strip()
 
+        # TODO Delete user message after creating command
         await ctx.message.delete()
         em = discord.Embed(title=f"{role}", description=f"{options}",
                            color=15277667)
         em.add_field(name=f"{EMOJIS[0]} Accepted", value="-")
         em.add_field(name=f"{EMOJIS[1]} Declined", value="-")
         em.add_field(name=f"{EMOJIS[2]} Tentative", value="-")
-        em.set_footer(text=f"Created by {ctx.message.author.name}")
+        em.set_footer(text=f"Voting ends at {self.input_time}")
         sent = await ctx.send(embed=em)
 
         # --- new def --- #
@@ -46,9 +47,10 @@ class Vote(Cog):
             current_time = datetime.now().time()
             if current_time > self.input_time:
                 await sent.delete()
+                print("sutki")
                 finished_poll = discord.Embed(title=f"**{role}**", description="", color=15277667)
                 await ctx.send(finished_poll)
-
+        # TODO Stopped working find out why
         for index, string in enumerate(EMOJIS):
             await sent.add_reaction(EMOJIS[index])
 
