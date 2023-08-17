@@ -7,10 +7,6 @@ class Welcome(Cog):
         self.bot = bot
         self.embed_list = []
 
-    @Cog.listener()
-    async def on_ready(self):
-        print('Welcome => Ready!')
-
     async def discord_embeds(self, message):
         em1 = discord.Embed(title="What's this about?", description="This Discord server is home to a wonderful "
                                                                     "community gathered around a fascinating bot, "
@@ -30,8 +26,6 @@ class Welcome(Cog):
                                                                "harmony and peace.")
         em2.add_field(name="**>ban [user] [reason]**", value="When all else fails, this command can help you "
                                                              "permanently remove problematic users.")
-        em2.add_field(name="**>unban [user] [reason]**", value="Sometimes, second chances are deserved. Use this "
-                                                               "command to lift bans and allow users back in.")
         em2.add_field(name="**>warn [user] [reason]**", value="Politely caution misbehaving members with a warning "
                                                               "message. Mention the user who needs a warning and "
                                                               "include a reason.")
@@ -45,10 +39,11 @@ class Welcome(Cog):
                                               "channels.")
         em3 = discord.Embed(title="", description="We hope you have an amazing time in our server with our bot's "
                                                   "assistance. If you ever have any questions or need support, our "
-                                                  "friendly community is here to help. Enjoy your stay! 🎉", color=15277667)
+                                                  "friendly community is here to help. Enjoy your stay! 🎉",
+                            color=15277667)
 
         self.embed_list = [em1, em2, em3]
-        await message.channel.send(f"Hey {message.author.mention} 👋, welcome to **{message.guild.name}**!\n\n "
+        await message.author.send(f"Hey {message.author.mention} 👋, welcome to **{message.guild.name}**!\n\n "
                                    f"There's more info below, or if you have more specific questions, "
                                    f"feel free to ask.\n\n", embeds=self.embed_list,)
 

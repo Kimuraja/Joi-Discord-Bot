@@ -25,7 +25,6 @@ class Music(Cog):
 
     @Cog.listener()
     async def on_ready(self):
-        print("Music -> Ready")
         for guild in self.bot.guilds:
             ID = int(guild.id)
             self.vc[ID] = None

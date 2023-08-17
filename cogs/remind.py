@@ -10,10 +10,6 @@ class Remind(Cog):
         self.dt = datetime
         self.bot = bot
 
-    @Cog.listener()
-    async def on_ready(self):
-        print('Reminder -> Ready !')
-
     @command()
     async def remind(self, ctx):
         if ctx.message.content == ">remind help":
@@ -29,7 +25,7 @@ class Remind(Cog):
             current_time = self.dt.now().time()
 
             while current_time < target_time:
-                await asyncio.sleep(15)
+                await asyncio.sleep(0.1)
                 current_time = datetime.now().time()
 
             em = discord.Embed(color=ctx.author.color)
